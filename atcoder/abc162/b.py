@@ -1,1 +1,0 @@
-print(sum([(i if i % 3 and i % 5 else 0) for i in range(int(input()) + 1)]))
