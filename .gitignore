@@ -1,0 +1,6 @@
+# ignore input file
+**/in
+
+# ingore output file
+**/out
+
