@@ -23,68 +23,66 @@ void print();
 template <typename T, typename... Args>
 void print(T x, Args... args);
 
-// An array of length n where the i-th element is the length of the longest
-// substring starting from i that also a prefix of s.
-void z_function(string &s, vi &z) {
-    int n = s.size(), i, j = 0;
-    z.assign(n, 0);
-    for (i = 1; i < n; ++i) {
-        if (j + z[j] > i) z[i] = min(j + z[j] - i, z[i - j]);
-        while (i + z[i] < n && s[i + z[i]] == s[z[i]]) z[i]++;
-        if (i + z[i] > j + z[j]) j = i;
-    }
+const int N = 1 << 20;
+vi st(N << 1), lz(N << 1);
+
+void push(int i) {
+    if (!lz[i]) return;
+
+    st[i << 1] += lz[i];
+    lz[i << 1] += lz[i];
+
+    st[i << 1 | 1] += lz[i];
+    lz[i << 1 | 1] += lz[i];
+
+    lz[i] = 0;
 }
-
-vvi dp, z2d;
-
-int cal(int l, int r) {
-    if (dp[l][r] != -1) return dp[l][r];
-    if (l == r) return dp[l][r] = 1;
-
-    dp[l][r] = r - l + 1;
-    for (int i = l + 1; i <= r; ++i) {
-        int t = i - l;
-
-        for (int j = 0; j <= z2d[l][i] && i + j <= r; j += t)
-            dp[l][r] = min(dp[l][r], cal(l, i - 1) + cal(i + j, r));
-
-        if (i + z2d[l][i] > r && (r - l + 1) % t == 0)
-            dp[l][r] = min(dp[l][r], cal(l, i - 1));
+void add(int l, int r, int v, int i = 1, int b = 0, int e = N - 1) {
+    if (l > e || r < b) return;
+    if (l <= b && e <= r) {
+        st[i] += v;
+        lz[i] += v;
+        return;
     }
-
-    return dp[l][r];
+    push(i);
+    int m = (b + e) >> 1;
+    add(l, r, v, i << 1, b, m);
+    add(l, r, v, i << 1 | 1, m + 1, e);
+    st[i] = min(st[i << 1], st[i << 1 | 1]);
 }
-bool solve() {
-    string s;
-    cin >> s;
-    if (s == "*") return false;
+void solve() {
+    int n, m;
+    cin >> n >> m;
 
-    int n = s.size();
+    vi l(n), r(n), w(n);
+    for (int i = 0; i < n; ++i) cin >> l[i] >> r[i] >> w[i];
 
-    z2d.assign(n, vi(n));
-    for (int i = 0; i < n; ++i) {
-        vi z;
-        string t = s.substr(i);
-        z_function(t, z);
-        for (int j = i; j < n; ++j) z2d[i][j] = z[j - i];
+    vi p(n);
+    iota(p.begin(), p.end(), 0);
+    sort(p.begin(), p.end(), [&](int u, int v) { return w[u] < w[v]; });
+
+    int i = 0, j = 0, res = INT_MAX;
+    for (i = 0; i < n; ++i) {
+        while (j < n && st[1] == 0) {
+            add(l[p[j]], r[p[j]] - 1, 1, 1, 1, m - 1);
+            j += 1;
+        }
+
+        if (st[1] > 0) {
+            res = min(res, w[p[j - 1]] - w[p[i]]);
+        }
+
+        add(l[p[i]], r[p[i]] - 1, -1, 1, 1, m - 1);
     }
 
-    dp.assign(n, vi(n, -1));
-    cout << cal(0, n - 1) << '\n';
-
-    
-    // for (int i = 0; i < n; ++i)
-    //     for (int j = 0; j < n; ++j) cout << dp[i][j] << " \n"[j == n - 1];
-
-    return true;
+    print(res);
 }
 int main() {
     ios::sync_with_stdio(false), cin.tie(nullptr), cout.tie(nullptr);
 
-    // int t = 1;
+    int t = 1;
     // cin >> t;
-    // for (int i = 0; i++ < t;) solve();
-    while (solve()) {}
+    for (int i = 0; i++ < t;) solve();
 
     return 0;
 }
