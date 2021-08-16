@@ -1,6 +1,6 @@
-# ignore input file
-**/in
+# ignore input folder
+**/in/
 
-# ingore output file
-**/out
+# ingore output folder
+**/out/
 
