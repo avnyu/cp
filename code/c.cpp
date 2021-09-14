@@ -24,14 +24,28 @@ template <typename T, typename... Args>
 void print(T x, Args... args);
 
 void solve() {
-    
+    int n;
+    cin >> n;
+    string s;
+    cin >> s;
+    vi a(n + 1);
+    for (int i = 0; i < n; ++i) a[i + 1] = s[i] == 'a' ? 1 : -1;
+    partial_sum(a.begin(), a.end(), a.begin());
+
+    for (int i = 0; i <= n; ++i)
+        for (int j = i + 1; j <= n; ++j)
+            if (a[i] == a[j]) {
+                print(i + 1, j);
+                return;
+            }
+    print(-1, -1);
 }
 int main() {
     ios::sync_with_stdio(false);
     cin.tie(nullptr), cout.tie(nullptr);
 
     int t = 1;
-    // cin >> t;
+    cin >> t;
     for (int i = 0; i++ < t;) solve();
 
     return 0;
